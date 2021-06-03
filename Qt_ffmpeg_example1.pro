@@ -24,7 +24,7 @@ HEADERS += \
     include/mainwindow.h \
     include/config.h \
     include/va_copy.h \
-    inlucde/ffplay.h
+    include/ffplay.h
 
 FORMS += \
     ui/mainwindow.ui
