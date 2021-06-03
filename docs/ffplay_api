@@ -8,6 +8,25 @@
 *   And we need the functions which may be called in the other project file directly.
 */
 
+/*
+*   Be used to stop the video.
+*   
+*   @param  is  The video message.
+*   @return 0 succeed or error -1.
+*/
+int do_exit(VideoState *is);
+
+/*
+*   Change the volume.
+*/
+static void update_volume(VideoState *is, int sign, double step);
+
+/*  Pause the video.    */
+static void toggle_pause(VideoState *is);
+
+/*  Mute the voice. */
+static void toggle_mute(VideoState *is);
+
 /**/
 
 /*
