@@ -16,16 +16,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    main.cpp \
-    mainwindow.cpp \
-    ffplay_src.c
+    src/main.cpp \
+    src/mainwindow.cpp \
+    src/ffplay_src.c
 
 HEADERS += \
-    mainwindow.h \
-    config.h \
-    va_copy.h \
-    ffplay.h
+    include/mainwindow.h \
+    include/config.h \
+    include/va_copy.h \
+    inlucde/ffplay.h
 
 FORMS += \
-    mainwindow.ui
+    ui/mainwindow.ui
 LIBS     +=  -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lswresample -lswscale -lpostproc  -lSDL2
