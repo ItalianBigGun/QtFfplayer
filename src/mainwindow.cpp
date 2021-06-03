@@ -14,6 +14,7 @@ extern int do_exit(VideoState *is);
 extern SDL_Event event;
 extern int event_loop_flag;
 extern int is_event_loop_running;
+extern int seek_by_bytes;
 }
 
 //char winID[32] = {0};

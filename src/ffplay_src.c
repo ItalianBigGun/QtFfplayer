@@ -48,7 +48,7 @@ static int audio_disable;
 static int video_disable;
 static int subtitle_disable;
 static const char* wanted_stream_spec[AVMEDIA_TYPE_NB] = {0};
-static int seek_by_bytes = -1;
+int seek_by_bytes = -1;
 static int display_disable;
 static int borderless;
 static int startup_volume = 100;
