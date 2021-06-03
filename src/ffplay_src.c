@@ -3049,8 +3049,8 @@ static void toggle_full_screen(VideoState *is)
     is_full_screen = !is_full_screen;
     SDL_SetWindowFullscreen(window, is_full_screen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 }
-
-static void toggle_audio_display(VideoState *is)
+/* call outside */
+void toggle_audio_display(VideoState *is)
 {
     int next = is->show_mode;
     do {

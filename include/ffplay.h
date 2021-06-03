@@ -306,24 +306,5 @@ typedef struct VideoState {
     SDL_cond *continue_read_thread;
 } VideoState;
 
-//#include <QObject>
-
-//class Ffplay : public QObject
-//{
-//    Q_OBJECT
-//public:
-//    Ffplay(const char *);
-//    ~Ffplay();
-//public slots:
-//    int run(const char *file_name);
-
-//signals:
-//    void sendPicture(const char *pData, size_t s);
-//    void sendVoice(const char *pData, size_t s);
-
-//private:
-//    int run_flag;
-//    char *pro_name;
-//};
 
 #endif // FFPLAY_H
