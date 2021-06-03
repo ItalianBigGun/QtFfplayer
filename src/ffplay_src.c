@@ -548,8 +548,8 @@ static void decoder_abort(Decoder *d, FrameQueue *fq)
     d->decoder_tid = NULL;
     packet_queue_flush(d->queue);
 }
-
-static inline void fill_rectangle(int x, int y, int w, int h)
+/*  call outside */
+void fill_rectangle(int x, int y, int w, int h)
 {
     SDL_Rect rect;
     rect.x = x;
@@ -682,8 +682,8 @@ static int upload_texture(SDL_Texture **tex, AVFrame *frame, struct SwsContext *
     }
     return ret;
 }
-
-static void video_image_display(VideoState *is)
+/*  call outside */
+void video_image_display(VideoState *is)
 {
     Frame *vp;
     Frame *sp = NULL;
@@ -768,8 +768,8 @@ static inline int compute_mod(int a, int b)
 {
     return a < 0 ? a%b + b : a%b;
 }
-
-static void video_audio_display(VideoState *s)
+/*  call outside */
+void video_audio_display(VideoState *s)
 {
     int i, i_start, x, y1, y, ys, delay, n, nb_display_channels;
     int ch, channels, h, h2;
@@ -1092,8 +1092,8 @@ static void video_display(VideoState *is)
         video_image_display(is);
     SDL_RenderPresent(renderer);
 }
-
-static double get_clock(Clock *c)
+/*  call outside */
+double get_clock(Clock *c)
 {
     if (*c->queue_serial != c->serial)
         return NAN;
@@ -1104,22 +1104,22 @@ static double get_clock(Clock *c)
         return c->pts_drift + time - (time - c->last_updated) * (1.0 - c->speed);
     }
 }
-
-static void set_clock_at(Clock *c, double pts, int serial, double time)
+/*  call outside */
+void set_clock_at(Clock *c, double pts, int serial, double time)
 {
     c->pts = pts;
     c->last_updated = time;
     c->pts_drift = c->pts - time;
     c->serial = serial;
 }
-
-static void set_clock(Clock *c, double pts, int serial)
+/*  call outside */
+void set_clock(Clock *c, double pts, int serial)
 {
     double time = av_gettime_relative() / 1000000.0;
     set_clock_at(c, pts, serial, time);
 }
-
-static void set_clock_speed(Clock *c, double speed)
+/*  call outside */
+void set_clock_speed(Clock *c, double speed)
 {
     set_clock(c, get_clock(c), c->serial);
     c->speed = speed;
@@ -1158,7 +1158,8 @@ static int get_master_sync_type(VideoState *is) {
 }
 
 /* get the current master clock value */
-static double get_master_clock(VideoState *is)
+/*  call outside */
+double get_master_clock(VideoState *is)
 {
     double val;
 
@@ -1191,7 +1192,8 @@ static void check_external_clock_speed(VideoState *is) {
 }
 
 /* seek in the stream */
-static void stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes)
+/*  call outside */
+void stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes)
 {
     if (!is->seek_req) {
         is->seek_pos = pos;
@@ -1205,7 +1207,8 @@ static void stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_by
 }
 
 /* pause or resume the video */
-static void stream_toggle_pause(VideoState *is)
+/*  call outside */
+void stream_toggle_pause(VideoState *is)
 {
     if (is->paused) {
         is->frame_timer += av_gettime_relative() / 1000000.0 - is->vidclk.last_updated;
@@ -1217,19 +1220,19 @@ static void stream_toggle_pause(VideoState *is)
     set_clock(&is->extclk, get_clock(&is->extclk), is->extclk.serial);
     is->paused = is->audclk.paused = is->vidclk.paused = is->extclk.paused = !is->paused;
 }
-
-static void toggle_pause(VideoState *is)
+/*  call outside */
+void toggle_pause(VideoState *is)
 {
     stream_toggle_pause(is);
     is->step = 0;
 }
-
-static void toggle_mute(VideoState *is)
+/*  call outside */
+void toggle_mute(VideoState *is)
 {
     is->muted = !is->muted;
 }
-
-static void update_volume(VideoState *is, int sign, double step)
+/*  call outside */
+void update_volume(VideoState *is, int sign, double step)
 {
     double volume_level = is->audio_volume ? (20 * log(is->audio_volume / (double)SDL_MIX_MAXVOLUME) / log(10)) : -1000.0;
     int new_volume = lrint(SDL_MIX_MAXVOLUME * pow(10.0, (volume_level + sign * step) / 20.0));
@@ -1559,6 +1562,7 @@ fail:
     return ret;
 }
 
+/*  call outside */
 double get_rotation(AVStream *st)
 {
     uint8_t* displaymatrix = av_stream_get_side_data(st,
