@@ -14,6 +14,7 @@ extern "C" {
     extern int event_loop_flag;
     extern int is_event_loop_running;
     extern int seek_by_bytes;
+    extern int show_loop;
 
     /*  播放开始    */
     extern int ffplay(const char *argv);

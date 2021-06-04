@@ -30,6 +30,7 @@ AVDictionary *sws_dict;
 AVDictionary *swr_opts;
 AVDictionary *format_opts, *codec_opts, *resample_opts;
 int hide_banner;
+int show_loop = 1;
 
 extern void* winID;
 const char program_name[] = "ffplay";
@@ -1319,6 +1320,10 @@ static void video_refresh(void *opaque, double *remaining_time)
 retry:
         if (frame_queue_nb_remaining(&is->pictq) == 0) {
             // nothing to do, no picture to display in the queue
+            //  In here, the video have shown to the end. We mybe set it show again automatically.
+            if (show_loop) {
+                // To do.
+            }
         } else {
             double last_duration, duration, delay;
             Frame *vp, *lastvp;
