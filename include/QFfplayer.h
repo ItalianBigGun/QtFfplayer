@@ -58,6 +58,7 @@ class QFfplayer : public QObject
 public:
     explicit QFfplayer(QObject *parent = nullptr);
     void setVideoState(VideoState *is);
+    void setWinID(void* winID);
 signals:
     void sendPicture(const char *pData, size_t s);
     void sendVoice(const char *pData, size_t s);
