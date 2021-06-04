@@ -1,0 +1,60 @@
+/*  
+*   AVFrame to QImage. Mybe use in the video_image_display function.
+*   And we can use this function to implement cutting video, getting 
+*   picture and pre-showing.
+*/
+
+————————————————
+// 创建
+QImage img (pFrame->width, pFrame->height, QImage::Format_RGB888);
+ 
+uint8_t* dst[] = { img.bits() };
+int dstStride[4];
+// AV_PIX_FMT_RGB24 对应于 QImage::Format_RGB888
+av_image_fill_linesizes(dstStride, AV_PIX_FMT_RGB24, pFrame->width);
+// 转换
+sws_scale(imgConvertCtx, pFrame->data, (const int*)pFrame->linesize,
+    0, pCodecCtx->height, dst, dstStride);
+————————————————
+版权声明：本文为CSDN博主「漂_泊」的原创文章，遵循CC 4.0 BY-SA版权协议，转载请附上原文出处链接及本声明。
+原文链接：https://blog.csdn.net/iMatt/article/details/111602372
+
+
+————————————————————————————
+void takeSnapshot(AVCodecContext* dec_ctx, AVFrame* frame)
+{
+    SwsContext* img_convert_ctx;
+
+    img_convert_ctx = sws_getContext(dec_ctx->width,
+                                     dec_ctx->height,
+                                     dec_ctx->pix_fmt,
+                                     dec_ctx->width,
+                                     dec_ctx->height,
+                                     AV_PIX_FMT_RGB24,
+                                     SWS_BICUBIC, NULL, NULL, NULL);
+
+    AVFrame* frameRGB = av_frame_alloc();
+    avpicture_alloc((AVPicture*)frameRGB,
+                    AV_PIX_FMT_RGB24,
+                    dec_ctx->width,
+                    dec_ctx->height);
+
+    sws_scale(img_convert_ctx, 
+              frame->data, 
+              frame->linesize, 0, 
+              dec_ctx->height, 
+              frameRGB->data, 
+              frameRGB->linesize);
+
+    QImage image(frameRGB->data[0], 
+                 dec_ctx->width, 
+                 dec_ctx->height, 
+                 frameRGB->linesize[0], 
+                 QImage::Format_RGB888);
+
+    av_frame_free(frameRGB);
+    emit sendImage(image);
+    //image.save("capture.png");
+}
+————————————————————————————
+from https://stackoverflow.com/questions/13088749/efficient-conversion-of-avframe-to-qimage, by morten.c.
