@@ -3061,6 +3061,18 @@ void toggle_audio_display(VideoState *is)
         is->show_mode = next;
     }
 }
+/*  call outside */
+void change_show_mode(VideoState *is) 
+{
+    VideoState *cur_stream = is;
+    if (cur_stream->show_mode == SHOW_MODE_VIDEO && cur_stream->vfilter_idx < nb_vfilters - 1) {
+        if (++cur_stream->vfilter_idx >= nb_vfilters)
+            cur_stream->vfilter_idx = 0;
+    } else {
+        cur_stream->vfilter_idx = 0;
+        toggle_audio_display(cur_stream);
+    }
+}
 
 static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
     double remaining_time = 0.0;
@@ -3078,8 +3090,8 @@ static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
         SDL_PumpEvents();
     }
 }
-
-static void seek_chapter(VideoState *is, int incr)
+/*  call outside */
+void seek_chapter(VideoState *is, int incr)
 {
     int64_t pos = get_master_clock(is) * AV_TIME_BASE;
     int i;
