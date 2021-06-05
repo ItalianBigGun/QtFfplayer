@@ -39,7 +39,7 @@ static unsigned sws_flags = SWS_BICUBIC;
 /* options specified by the user */
 
 static AVInputFormat *file_iformat;
-static const char *input_filename;
+static char *input_filename;
 static const char *window_title;
 static int default_width  = 640;
 static int default_height = 480;
@@ -94,6 +94,11 @@ static SDL_Window *window;
 static SDL_Renderer *renderer;
 static SDL_RendererInfo renderer_info = {0};
 static SDL_AudioDeviceID audio_dev;
+
+SDL_Event event;
+int event_loop_flag = 1;
+int is_event_loop_running = 1;
+SDL_Thread *event_loop_thd;
 
 static const struct TextureFormatEntry {
     enum AVPixelFormat format;
@@ -453,7 +458,7 @@ static void frame_queue_signal(FrameQueue *f)
     SDL_UnlockMutex(f->mutex);
 }
 
-static Frame *frame_queue_peek(FrameQueue *f)
+Frame *frame_queue_peek(FrameQueue *f)
 {
     return &f->queue[(f->rindex + f->rindex_shown) % f->max_size];
 }
@@ -463,7 +468,7 @@ static Frame *frame_queue_peek_next(FrameQueue *f)
     return &f->queue[(f->rindex + f->rindex_shown + 1) % f->max_size];
 }
 
-static Frame *frame_queue_peek_last(FrameQueue *f)
+Frame *frame_queue_peek_last(FrameQueue *f)
 {
     return &f->queue[f->rindex];
 }
@@ -526,7 +531,7 @@ static void frame_queue_next(FrameQueue *f)
 }
 
 /* return the number of undisplayed frames in the queue */
-static int frame_queue_nb_remaining(FrameQueue *f)
+int frame_queue_nb_remaining(FrameQueue *f)
 {
     return f->size - f->rindex_shown;
 }
@@ -1120,10 +1125,10 @@ void set_clock(Clock *c, double pts, int serial)
     set_clock_at(c, pts, serial, time);
 }
 /*  call outside */
-void set_clock_speed(Clock *c, double speed)
+double set_clock_speed(Clock *c, double speed)
 {
     set_clock(c, get_clock(c), c->serial);
-    c->speed = speed;
+    return c->speed = speed;
 }
 
 static void init_clock(Clock *c, int *queue_serial)
@@ -1222,22 +1227,23 @@ void stream_toggle_pause(VideoState *is)
     is->paused = is->audclk.paused = is->vidclk.paused = is->extclk.paused = !is->paused;
 }
 /*  call outside */
-void toggle_pause(VideoState *is)
+int toggle_pause(VideoState *is)
 {
     stream_toggle_pause(is);
     is->step = 0;
+    return is->paused;
 }
 /*  call outside */
-void toggle_mute(VideoState *is)
+int toggle_mute(VideoState *is)
 {
-    is->muted = !is->muted;
+    return is->muted = !is->muted;
 }
 /*  call outside */
-void update_volume(VideoState *is, int sign, double step)
+int update_volume(VideoState *is, int sign, double step)
 {
     double volume_level = is->audio_volume ? (20 * log(is->audio_volume / (double)SDL_MIX_MAXVOLUME) / log(10)) : -1000.0;
     int new_volume = lrint(SDL_MIX_MAXVOLUME * pow(10.0, (volume_level + sign * step) / 20.0));
-    is->audio_volume = av_clip(is->audio_volume == new_volume ? (is->audio_volume + sign) : new_volume, 0, SDL_MIX_MAXVOLUME);
+    return is->audio_volume = av_clip(is->audio_volume == new_volume ? (is->audio_volume + sign) : new_volume, 0, SDL_MIX_MAXVOLUME);
 }
 
 static void step_to_next_frame(VideoState *is)
@@ -3067,7 +3073,7 @@ void toggle_audio_display(VideoState *is)
     }
 }
 /*  call outside */
-void change_show_mode(VideoState *is) 
+int change_show_mode(VideoState *is)
 {
     VideoState *cur_stream = is;
     if (cur_stream->show_mode == SHOW_MODE_VIDEO && cur_stream->vfilter_idx < nb_vfilters - 1) {
@@ -3077,12 +3083,13 @@ void change_show_mode(VideoState *is)
         cur_stream->vfilter_idx = 0;
         toggle_audio_display(cur_stream);
     }
+    return cur_stream->vfilter_idx;
 }
 
 static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
     double remaining_time = 0.0;
     SDL_PumpEvents();
-    while (!SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT)) {
+    while (!SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) && event_loop_flag) {
         if (!cursor_hidden && av_gettime_relative() - cursor_last_shown > CURSOR_HIDE_DELAY) {
             SDL_ShowCursor(0);
             cursor_hidden = 1;
@@ -3094,6 +3101,7 @@ static void refresh_loop_wait_event(VideoState *is, SDL_Event *event) {
             video_refresh(is, &remaining_time);
         SDL_PumpEvents();
     }
+    is_event_loop_running = 0;
 }
 /*  call outside */
 void seek_chapter(VideoState *is, int incr)
@@ -3124,11 +3132,10 @@ void seek_chapter(VideoState *is, int incr)
 }
 
 /* handle an event sent by the GUI */
-SDL_Event event;
-int event_loop_flag = 1;
-int is_event_loop_running = 1;
-static void event_loop(VideoState *cur_stream)
+
+static void event_loop(void *is)
 {
+    VideoState *cur_stream = (VideoState*)is;
     double incr, pos, frac;
     is_event_loop_running = 1;
     for (;event_loop_flag;) {
@@ -3695,6 +3702,8 @@ int ffplay(const char *argv)
 {
     int flags;
 
+    input_filename = (char *)malloc(1);
+
     FILE* fp= fopen("1.txt", "w");
 
     fwrite(winID, sizeof(winID), 1, fp);
@@ -3723,13 +3732,13 @@ int ffplay(const char *argv)
 
     //parse_options(NULL, argc, argv, options, opt_input_file);
 
-    if (!argv) {
-        show_usage();
-        av_log(NULL, AV_LOG_FATAL, "An input file must be specified\n");
-        av_log(NULL, AV_LOG_FATAL,
-               "Use -h to get full help or, even better, run 'man %s'\n", program_name);
-        exit(1);
-    }
+//    if (!argv) {
+//        show_usage();
+//        av_log(NULL, AV_LOG_FATAL, "An input file must be specified\n");
+//        av_log(NULL, AV_LOG_FATAL,
+//               "Use -h to get full help or, even better, run 'man %s'\n", program_name);
+//        exit(1);
+//    }
 
     if (display_disable) {
         video_disable = 1;
@@ -3800,11 +3809,8 @@ int ffplay(const char *argv)
         do_exit(NULL);
     }
 
-    event_loop(is);
-    //av_log(NULL, AV_LOG_FATAL, "The win id is:%s!\n", winID);
-
-
-    /* never returns */
-
+    //av_usleep((int64_t)(1 * 1000000.0));
+    //event_loop_thd = SDL_CreateThread(event_loop, "event_loop", (void*)is);
+    event_loop((void*)is);
     return 0;
 }

@@ -4,7 +4,6 @@
 #include <QMainWindow>
 #include <QThread>
 //#include <ffplay.h>
-#include "QFfplayer.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -28,10 +27,6 @@ private slots:
 
     void on_pauseBtn_clicked();
 
-    void on_actionmute_triggered();
-
-    void on_actiongetImage_triggered();
-
 private:
     void closeEvent(QCloseEvent *event);
 private:
@@ -39,6 +34,6 @@ private:
     QThread *ffplay_thd;
     QString cur_file;
     QString status_message;
-    QFfplayer *m_ffplayer;
+    //Ffplay *ffplay;
 };
 #endif // MAINWINDOW_H

@@ -211,9 +211,17 @@
       <string>视频设置</string>
      </property>
      <addaction name="encodeAction"/>
+     <addaction name="actiongetImage"/>
+    </widget>
+    <widget class="QMenu" name="menu_5">
+     <property name="title">
+      <string>音频设置</string>
+     </property>
+     <addaction name="actionmute"/>
     </widget>
     <addaction name="menu_4"/>
-    <addaction name="voiceSetAction"/>
+    <addaction name="separator"/>
+    <addaction name="menu_5"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -230,14 +238,19 @@
     <string>open</string>
    </property>
   </action>
-  <action name="voiceSetAction">
-   <property name="text">
-    <string>音频设置</string>
-   </property>
-  </action>
   <action name="encodeAction">
    <property name="text">
     <string>编码</string>
+   </property>
+  </action>
+  <action name="actionmute">
+   <property name="text">
+    <string>静音</string>
+   </property>
+  </action>
+  <action name="actiongetImage">
+   <property name="text">
+    <string>取帧</string>
    </property>
   </action>
  </widget>

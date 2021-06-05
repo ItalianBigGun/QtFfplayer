@@ -20,13 +20,15 @@ INCLUDEPATH += include
 SOURCES += \
     src/main.cpp \
     src/mainwindow.cpp \
-    src/ffplay_src.c
+    src/ffplay_src.c \
+    src/QFfplayer.cpp
 
 HEADERS += \
     include/mainwindow.h \
     include/config.h \
     include/va_copy.h \
-    include/ffplay.h
+    include/ffplay.h \
+    include/QFfplayer.h
 
 FORMS += \
     ui/mainwindow.ui

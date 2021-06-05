@@ -2,7 +2,6 @@
 #include "ui_mainwindow.h"
 #include <QDebug>
 #include <QFileDialog>
-#if 0
 extern "C" {
 #include "ffplay.h"
 #include <libavdevice/avdevice.h>
@@ -20,15 +19,20 @@ extern int seek_by_bytes;
 
 //char winID[32] = {0};
 void* winID;
-#endif
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    m_ffplayer = new QFfplayer(this);
-    m_ffplayer->setWinID((void*)ui->videoShowWindow->winId());
+    //sprintf(winID, "SDL_WINDOWID=0x%lx", ui->videoShowWindow->winId());
+    winID = (void*)ui->videoShowWindow->winId();
     cur_file = QString("1.mp4");
+//    ffplay = new Ffplay("ffplay");
+//    if (ffplay) {
+//        connect(ffplay, &Ffplay::sendPicture, this, &MainWindow::recvPicture);
+//        connect(ffplay, &Ffplay::sendVoice, this, &MainWindow::recvVoice);
+//    }
+
 }
 
 MainWindow::~MainWindow()
@@ -41,7 +45,7 @@ void MainWindow::on_playBtn_clicked()
 {
     int ret;
     event_loop_flag = 1;
-    ret = m_ffplayer->playVideo(cur_file.toStdString().c_str());//ffplay(cur_file.toStdString().c_str());
+    ret = ffplay(cur_file.toStdString().c_str());
     qDebug() << "The ret of the function ffplay is:" << ret;
     status_message = QString("Started showing.");
     ui->statusbar->clearMessage();
@@ -64,7 +68,9 @@ void MainWindow::on_stopBtn_clicked()
 {
     //ui->videoShowWindow->close();
     int ret;
-    ret = m_ffplayer->stopVideo();
+    event_loop_flag = 0;
+    if (!is_event_loop_running);
+        ret = do_exit(is);
     qDebug() << ret;
     status_message = QString("Stopped showing.");
     ui->statusbar->clearMessage();
@@ -74,7 +80,6 @@ void MainWindow::on_stopBtn_clicked()
 void MainWindow::on_openAction_triggered()
 {
     cur_file = QFileDialog::getOpenFileName(this);
-    m_ffplayer->setDisplayFile(cur_file);
     qDebug() << cur_file;
     //
     status_message = QString("Set current show file name is:.") + cur_file;
@@ -103,19 +108,5 @@ void MainWindow::on_horizontalSlider_valueChanged(int value)
 
 void MainWindow::on_pauseBtn_clicked()
 {
-    int ret;
-    ret = m_ffplayer->pauseVideo();
-    qDebug() <<ret;
-}
 
-void MainWindow::on_actionmute_triggered()
-{
-    if (is) {
-        m_ffplayer->muteAudio();
-    }
-}
-
-void MainWindow::on_actiongetImage_triggered()
-{
-    m_ffplayer->getCurrentImage().save("1.jpg");
 }

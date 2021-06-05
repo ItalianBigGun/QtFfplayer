@@ -2,6 +2,8 @@
 #define QFFPLAYER_H
 
 #include <QObject>
+#include <QImage>
+#include <QThread>
 extern "C" {
     #include "ffplay.h"
     #include <libavdevice/avdevice.h>
@@ -31,7 +33,7 @@ extern "C" {
     /*  设置播放时间？  */
     extern void set_clock(Clock *c, double pts, int serial);
     /*  设置播放速度    */
-    extern void set_clock_speed(Clock *c, double speed);
+    extern double set_clock_speed(Clock *c, double speed);
 
     extern double get_master_clock(VideoState *is);
     /*  快进操作    */
@@ -39,34 +41,85 @@ extern "C" {
     extern void seek_chapter(VideoState *is, int incr);
     
     /*  视频启停操作    */
-    extern void toggle_pause(VideoState *is);
+    extern void stream_toggle_pause(VideoState *is);
+    extern int toggle_pause(VideoState *is);
     /*  静音启停操作    */
-    extern void toggle_mute(VideoState *is);
+    extern int toggle_mute(VideoState *is);
     /*  调节音量    */
-    extern void update_volume(VideoState *is, int sign, double step);
+    extern int update_volume(VideoState *is, int sign, double step);
     /*  ?   */
     extern double get_rotation(AVStream *st);
     /*  音频启停操作    */
     extern void toggle_audio_display(VideoState *is);
     /*  改变显示操作    */
-    extern void change_show_mode(VideoState *is);
+    extern int change_show_mode(VideoState *is);
 }
+
+enum {
+    STATE_ERROR=-1,
+    STATE_STOP=0,
+    STATE_RUN,
+    STATE_PAUSE,
+};
+
+class PlayerThread : public QThread
+{
+    Q_OBJECT
+public:
+    PlayerThread() {
+
+    }
+    void setDisplayFile(QString filename) {
+        show_file_name = filename;
+    }
+    void run() {
+        int ret;
+        emit playStart(1);
+        ret = ffplay(show_file_name.toStdString().c_str());
+        emit playStop(ret);
+    }
+signals:
+    void playStop(int state);
+    void playStart(int state);
+private:
+    QString show_file_name;
+};
 
 class QFfplayer : public QObject
 {
     Q_OBJECT
 public:
     explicit QFfplayer(QObject *parent = nullptr);
+    virtual ~QFfplayer();
     void setVideoState(VideoState *is);
     void setWinID(void* winID);
+    void setDisplayFile(QString filename);
+    const QImage& getCurrentImage();
 signals:
     void sendPicture(const char *pData, size_t s);
     void sendVoice(const char *pData, size_t s);
 public slots:
+    void updateState(int state) {
+        current_state = state;
+    }
+    int playVideo(QString filename = nullptr);
+    int stopVideo();
+    int pauseVideo();
+    int resumeVideo();
+    int updateVolume(int sign, double step);
+    int muteAudio();
+    int changeShowMode();
+    double changeShowSpeed(double speed);
 
 private:
-    VideoState **m_is;
-
+    VideoState **m_is_dp;
+    VideoState *m_is;
+    QString show_file_name;
+    QString pro_name;
+    QImage current_image;
+    int pause_state;
+    volatile int current_state;
+    PlayerThread *m_play_thd;
 };
 
 #endif // QFFPLAYER_H
