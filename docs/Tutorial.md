@@ -40,4 +40,8 @@
 
  _说明：由于资料较旧，和最新版本可能存在差异。_ 
 
+- 参考笔记
+
+[输入链接说明](http://note.youdao.com/noteshare?id=36e52d4ff9c43042ed24ed24fa0fb07a&sub=3B11A1AD47CE4F50801E8E8F8ABF2295)
+
  _ :bangbang: 注意：API教程仅供参考，请勿全信。_ 
