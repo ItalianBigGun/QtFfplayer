@@ -6,7 +6,7 @@
 
 ### 当前API教程
 
-- 1. int ffplay(const char *argv)
+1. int ffplay(const char *argv)
 
 - 位置：ffplay_src.c
 - 功能说明：
@@ -18,7 +18,7 @@
         - argv    文件名
     - 返回值：
         - 0    成功
-       - -1    失败
+        - -1    失败
 
 - 描述：
     - 该函数由原来的ffplay源码中的main函数修改而来。原型为：
