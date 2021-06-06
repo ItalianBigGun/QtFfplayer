@@ -6,23 +6,23 @@
 
 ### 当前API教程
 
-1. int ffplay(const char *argv)
+- 1. int ffplay(const char *argv)
 
-位置：ffplay_src.c
-功能说明：
-    用于播放视频，是ffplay功能的主入口。
+- 位置：ffplay_src.c
+- 功能说明：
+    - 用于播放视频，是ffplay功能的主入口。
 
-函数说明：
-    函数名：ffplay
-    参数：
-        argv    文件名
-    返回值：
-        0    成功
-       -1    失败
+- 函数说明：
+    - 函数名：ffplay
+    - 参数：
+        - argv    文件名
+    - 返回值：
+        - 0    成功
+       - -1    失败
 
-描述：
-    该函数由原来的ffplay源码中的main函数修改而来。原型为：
-    int main(int argc, const char **argv);
+- 描述：
+    - 该函数由原来的ffplay源码中的main函数修改而来。原型为：
+    - int main(int argc, const char **argv);
 
 ### 原代码API教程
 
