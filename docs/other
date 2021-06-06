@@ -1,5 +1,5 @@
 /*  
-*   AVFrame to QImage. Mybe use in the video_image_display function.
+*   AVFrame to QImage. Maybe use in the video_image_display function.
 *   And we can use this function to implement cutting video, getting 
 *   picture and pre-showing.
 */

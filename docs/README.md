@@ -18,7 +18,9 @@
 
 #### 使用说明
 
-
+1. The version of SDL is 2.0.14.
+2. The version of ffmpeg is.. I forget it. What do you like.
+3. The test Qt version of author is 5.9.8.
 
 #### 参与贡献
 
