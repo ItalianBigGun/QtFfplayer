@@ -5,13 +5,23 @@
 
 #### 软件架构
 
+请查看当前目录下的Tutorial.md文件。
 
-#### 安装教程
+#### 功能说明
+
+1. 选择文件播放视频。
+2. 停止播放视频。
+3. 音量大小调节。
+4. 暂停播放功能。
+5. 静音功能。
+6. 截屏功能。
 
 
 #### 使用说明
 
-
+1. The version of SDL is 2.0.14.
+2. The version of ffmpeg is.. I forget it. What do you like.
+3. The test Qt version of author is 5.9.8.
 
 #### 参与贡献
 
