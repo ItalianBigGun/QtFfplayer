@@ -32,7 +32,7 @@ void QFfplayer::setWinID(void *winID)
     ::winID = winID;
 }
 
-void QFfplayer::setDisplayFile(QString filename)
+void QFfplayer::setDisplayFile(const QString& filename)
 {
     show_file_name = filename;
 }
@@ -83,11 +83,11 @@ const QImage& QFfplayer::getCurrentImage()
 }
 
 /*  slots   */
-int QFfplayer::playVideo(QString filename)
+int QFfplayer::playVideo(const QString& filename)
 {
     int ret;
     event_loop_flag = 1;
-    if ((filename == nullptr) || (current_state != STATE_STOP)) {
+    if ((filename.size() == 0) || (current_state != STATE_STOP)) {
         qDebug() << current_state;
         return -1;
     }current_state = STATE_RUN;
@@ -96,7 +96,7 @@ int QFfplayer::playVideo(QString filename)
     m_play_thd->start();
     //ret = ::ffplay(show_file_name.toStdString().c_str());
     //qDebug() << "after ffplayer:" <<ret;
-    return ret;
+    return 0;
 }
 
 int QFfplayer::stopVideo()
@@ -156,10 +156,29 @@ int QFfplayer::changeShowMode()
     return -1;
 }
 
-double QFfplayer::changeShowSpeed(double speed)
+int QFfplayer::setSubtitleFile(const QString &filename)
+{
+    subtitile_file_name = filename;
+}
+
+/*  compeleted  */
+double QFfplayer::updateSpeed(double val, int relative)
 {
     if (*m_is_dp && (current_state != STATE_STOP)) {
-        return ::set_clock_speed(&(*m_is_dp)->extclk, speed);
+        if (relative) {
+            set_clock_speed(&(*m_is_dp)->extclk, (*m_is_dp)->extclk.speed + val);
+        } else {
+            set_clock_speed(&(*m_is_dp)->extclk, val);
+        }
+        return (*m_is_dp)->extclk.speed;
+    }
+    return -1;
+}
+
+int QFfplayer::stream_seek_safe(double incr, int seek_by_bytes)
+{
+    if (*m_is_dp && (current_state != STATE_STOP)) {
+        return ::stream_seek_safe(*m_is_dp, incr, seek_by_bytes);
     }
     return -1;
 }

@@ -32,6 +32,16 @@ private slots:
 
     void on_actiongetImage_triggered();
 
+    void on_actionloadsubtfile_triggered();
+
+    void on_timeHSlider_valueChanged(int value);
+
+    void on_actionaddRate_triggered();
+
+    void on_actionreduceRate_triggered();
+
+    void on_timeHSlider_sliderMoved(int position);
+
 private:
     void closeEvent(QCloseEvent *event);
 private:

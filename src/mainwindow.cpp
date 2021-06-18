@@ -33,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    delete m_ffplayer;
     delete ui;
 }
 
@@ -43,9 +44,12 @@ void MainWindow::on_playBtn_clicked()
     event_loop_flag = 1;
     ret = m_ffplayer->playVideo(cur_file.toStdString().c_str());//ffplay(cur_file.toStdString().c_str());
     qDebug() << "The ret of the function ffplay is:" << ret;
-    status_message = QString("Started showing.");
-    ui->statusbar->clearMessage();
-    ui->statusbar->showMessage(status_message);
+    if (ret == 0) {
+        status_message = QString("Started showing.");
+        ui->timeHSlider->setRange(0, 320);
+        ui->statusbar->clearMessage();
+        ui->statusbar->showMessage(status_message);
+    }
 }
 
 void MainWindow::recvPicture(const char *pData, size_t s)
@@ -118,4 +122,36 @@ void MainWindow::on_actionmute_triggered()
 void MainWindow::on_actiongetImage_triggered()
 {
     m_ffplayer->getCurrentImage().save("1.jpg");
+}
+
+void MainWindow::on_actionloadsubtfile_triggered()
+{
+
+}
+
+
+void MainWindow::on_timeHSlider_valueChanged(int value)
+{
+
+}
+
+void MainWindow::on_actionaddRate_triggered()
+{
+    m_ffplayer->updateSpeed(0.1, 1);
+    on_pauseBtn_clicked();on_pauseBtn_clicked();
+}
+
+void MainWindow::on_actionreduceRate_triggered()
+{
+    m_ffplayer->updateSpeed(-0.1, 1);
+    on_pauseBtn_clicked();on_pauseBtn_clicked();
+}
+
+void MainWindow::on_timeHSlider_sliderMoved(int position)
+{
+    static int o_postion = 0;
+    qDebug() << o_postion << "," << position;
+    int diff = position - o_postion;
+    o_postion = position;
+    m_ffplayer->stream_seek_safe(diff, 0);
 }

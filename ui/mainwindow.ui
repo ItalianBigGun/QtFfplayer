@@ -17,6 +17,19 @@
    <layout class="QGridLayout" name="gridLayout_2">
     <item row="0" column="0">
      <layout class="QGridLayout" name="gridLayout">
+      <item row="3" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
       <item row="1" column="1">
        <widget class="QWidget" name="videoShowWindow" native="true">
         <property name="sizePolicy">
@@ -42,7 +55,7 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
+      <item row="4" column="1">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
          <widget class="QPushButton" name="playBtn">
@@ -131,19 +144,6 @@
         </item>
        </layout>
       </item>
-      <item row="2" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
       <item row="0" column="1">
        <spacer name="verticalSpacer_2">
         <property name="orientation">
@@ -183,6 +183,13 @@
         </property>
        </spacer>
       </item>
+      <item row="2" column="1">
+       <widget class="QSlider" name="timeHSlider">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
      </layout>
     </item>
    </layout>
@@ -210,8 +217,24 @@
      <property name="title">
       <string>视频设置</string>
      </property>
+     <widget class="QMenu" name="menuchangeRate">
+      <property name="geometry">
+       <rect>
+        <x>649</x>
+        <y>170</y>
+        <width>137</width>
+        <height>105</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>调速</string>
+      </property>
+      <addaction name="actionaddRate"/>
+      <addaction name="actionreduceRate"/>
+     </widget>
      <addaction name="encodeAction"/>
      <addaction name="actiongetImage"/>
+     <addaction name="menuchangeRate"/>
     </widget>
     <widget class="QMenu" name="menu_5">
      <property name="title">
@@ -219,9 +242,16 @@
      </property>
      <addaction name="actionmute"/>
     </widget>
+    <widget class="QMenu" name="menusubtitleConfigure">
+     <property name="title">
+      <string>字幕设置</string>
+     </property>
+     <addaction name="actionloadsubtfile"/>
+    </widget>
     <addaction name="menu_4"/>
     <addaction name="separator"/>
     <addaction name="menu_5"/>
+    <addaction name="menusubtitleConfigure"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -235,7 +265,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <action name="openAction">
    <property name="text">
-    <string>open</string>
+    <string>打开</string>
    </property>
   </action>
   <action name="encodeAction">
@@ -251,6 +281,21 @@
   <action name="actiongetImage">
    <property name="text">
     <string>取帧</string>
+   </property>
+  </action>
+  <action name="actionloadsubtfile">
+   <property name="text">
+    <string>载入字幕文件</string>
+   </property>
+  </action>
+  <action name="actionaddRate">
+   <property name="text">
+    <string>加快</string>
+   </property>
+  </action>
+  <action name="actionreduceRate">
+   <property name="text">
+    <string>减速</string>
    </property>
   </action>
  </widget>

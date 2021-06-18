@@ -54,7 +54,7 @@ static int display_disable;
 static int borderless;
 static int startup_volume = 100;
 static int show_status = 1;
-static int av_sync_type = AV_SYNC_AUDIO_MASTER;
+static int av_sync_type = AV_SYNC_EXTERNAL_CLOCK;
 static int64_t start_time = AV_NOPTS_VALUE;
 static int64_t duration = AV_NOPTS_VALUE;
 static int fast = 0;
@@ -3131,6 +3131,34 @@ void seek_chapter(VideoState *is, int incr)
                                  AV_TIME_BASE_Q), 0, 0);
 }
 
+int stream_seek_safe(VideoState *cur_stream, double incr, int seek_by_bytes)
+{
+    double pos;
+    if (seek_by_bytes) {
+        pos = -1;
+        if (pos < 0 && cur_stream->video_stream >= 0)
+            pos = frame_queue_last_pos(&cur_stream->pictq);
+        if (pos < 0 && cur_stream->audio_stream >= 0)
+            pos = frame_queue_last_pos(&cur_stream->sampq);
+        if (pos < 0)
+            pos = avio_tell(cur_stream->ic->pb);
+        if (cur_stream->ic->bit_rate)
+            incr *= cur_stream->ic->bit_rate / 8.0;
+        else
+            incr *= 180000.0;
+        pos += incr;
+        stream_seek(cur_stream, pos, incr, 1);
+    } else {
+        pos = get_master_clock(cur_stream);
+        if (isnan(pos))
+            pos = (double)cur_stream->seek_pos / AV_TIME_BASE;
+        pos += incr;
+        if (cur_stream->ic->start_time != AV_NOPTS_VALUE && pos < cur_stream->ic->start_time / (double)AV_TIME_BASE)
+            pos = cur_stream->ic->start_time / (double)AV_TIME_BASE;
+        stream_seek(cur_stream, (int64_t)(pos * AV_TIME_BASE), (int64_t)(incr * AV_TIME_BASE), 0);
+    }
+}
+
 /* handle an event sent by the GUI */
 
 static void event_loop(void *is)
@@ -3704,9 +3732,9 @@ int ffplay(const char *argv)
 
     input_filename = (char *)malloc(1);
 
-    FILE* fp= fopen("1.txt", "w");
+    //FILE* fp= fopen("1.txt", "w");
 
-    fwrite(winID, sizeof(winID), 1, fp);
+    //fwrite(winID, sizeof(winID), 1, fp);
 
    // init_dynload();
 
@@ -3781,7 +3809,7 @@ int ffplay(const char *argv)
         window = SDL_CreateWindowFrom(winID);
         if (!window) {
             char *err = SDL_GetError();
-            fwrite(err, strlen(err), 1, fp);
+            //fwrite(err, strlen(err), 1, fp);
             return -1;
         }
         //window = SDL_CreateWindow(program_name, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, default_width, default_height, flags);

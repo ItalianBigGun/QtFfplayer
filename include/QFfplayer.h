@@ -39,6 +39,7 @@ extern "C" {
     /*  快进操作    */
     extern void stream_seek(VideoState *is, int64_t pos, int64_t rel, int seek_by_bytes);
     extern void seek_chapter(VideoState *is, int incr);
+    extern int stream_seek_safe(VideoState *cur_stream, double incr, int seek_by_bytes);
     
     /*  视频启停操作    */
     extern void stream_toggle_pause(VideoState *is);
@@ -93,7 +94,7 @@ public:
     virtual ~QFfplayer();
     void setVideoState(VideoState *is);
     void setWinID(void* winID);
-    void setDisplayFile(QString filename);
+    void setDisplayFile(const QString& filename);
     const QImage& getCurrentImage();
 signals:
     void sendPicture(const char *pData, size_t s);
@@ -102,15 +103,16 @@ public slots:
     void updateState(int state) {
         current_state = state;
     }
-    int playVideo(QString filename = nullptr);
+    int playVideo(const QString& filename);
     int stopVideo();
     int pauseVideo();
     int resumeVideo();
     int updateVolume(int sign, double step);
     int muteAudio();
     int changeShowMode();
-    double changeShowSpeed(double speed);
-
+    int setSubtitleFile(const QString& filename);
+    double updateSpeed(double val, int relative);
+    int stream_seek_safe(double incr, int seek_by_bytes);
 private:
     VideoState **m_is_dp;
     VideoState *m_is;
@@ -120,6 +122,7 @@ private:
     int pause_state;
     volatile int current_state;
     PlayerThread *m_play_thd;
+    QString subtitile_file_name;
 };
 
 #endif // QFFPLAYER_H
